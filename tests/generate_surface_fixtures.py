@@ -3,7 +3,7 @@ generate_surface_fixtures.py — Generates synthetic surface fixture images
 for testing SurfaceDetector, standing in for real factory photographs
 until physical samples are available.
 
-Produces 10 grayscale images (640x400):
+Produces 10 grayscale images (640x400) in tests/fixtures/surface/:
     5 clean   (PASS)  — surface_clean_01.jpg   .. surface_clean_05.jpg
     3 scratch (FAIL)  — surface_scratch_01.jpg .. surface_scratch_03.jpg
     2 dust    (FAIL)  — surface_dust_01.jpg    .. surface_dust_02.jpg
@@ -11,17 +11,21 @@ Produces 10 grayscale images (640x400):
 Ground truth is encoded in the filename prefix (clean / scratch / dust)
 so tests can parse expected pass/fail without a separate manifest.
 
+Output path is resolved relative to this script's own location, so it
+writes to the same place regardless of the working directory pytest
+was invoked from.
+
 Usage:
     python3 generate_surface_fixtures.py
 """
 
-import os
+from pathlib import Path
 
 import cv2
 import numpy as np
 
 WIDTH, HEIGHT = 640, 400
-OUTPUT_DIR = "../fixtures_surface"
+OUTPUT_DIR = Path(__file__).resolve().parent / "fixtures" / "surface"
 SEED = 42
 
 CLEAN_COUNT   = 5
@@ -61,31 +65,31 @@ def add_dust(frame: np.ndarray, rng: np.random.Generator, count: int = 4) -> np.
 
 
 def main() -> None:
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(SEED)
     saved = []
 
     for i in range(1, CLEAN_COUNT + 1):
         frame = make_clean_surface(rng)
-        path = os.path.join(OUTPUT_DIR, f"surface_clean_{i:02d}.jpg")
-        cv2.imwrite(path, frame)
+        path = OUTPUT_DIR / f"surface_clean_{i:02d}.jpg"
+        cv2.imwrite(str(path), frame)
         saved.append(path)
 
     for i in range(1, SCRATCH_COUNT + 1):
         frame = make_clean_surface(rng)
         frame = add_scratch(frame, rng)
-        path = os.path.join(OUTPUT_DIR, f"surface_scratch_{i:02d}.jpg")
-        cv2.imwrite(path, frame)
+        path = OUTPUT_DIR / f"surface_scratch_{i:02d}.jpg"
+        cv2.imwrite(str(path), frame)
         saved.append(path)
 
     for i in range(1, DUST_COUNT + 1):
         frame = make_clean_surface(rng)
         frame = add_dust(frame, rng)
-        path = os.path.join(OUTPUT_DIR, f"surface_dust_{i:02d}.jpg")
-        cv2.imwrite(path, frame)
+        path = OUTPUT_DIR / f"surface_dust_{i:02d}.jpg"
+        cv2.imwrite(str(path), frame)
         saved.append(path)
 
-    print(f"{len(saved)} fixtures saved to ./{OUTPUT_DIR}/")
+    print(f"{len(saved)} fixtures saved to {OUTPUT_DIR}/")
     for p in saved:
         print(f"  {p}")
 
