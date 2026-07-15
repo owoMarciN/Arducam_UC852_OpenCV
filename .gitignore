@@ -1,0 +1,33 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# --- Virtual environments ---
+venv/
+.venv/
+env/
+
+# --- pyenv ---
+# .python-version is committed on purpose — it pins the interpreter version
+# for anyone who clones this repo. Do not ignore it.
+
+# --- C++ / CMake build artifacts ---
+cpp/build/
+cpp/CMakeFiles/
+cpp/CMakeCache.txt
+
+# --- Secrets ---
+.env
+
+# --- Synthetic fixture images (regenerated automatically by pytest) ---
+tests/fixtures/surface/
+tests/fixtures/color/
+tests/fixtures/brightness/
+
+# --- OS / editor noise ---
+.DS_Store
+.vscode/
+*.swp
